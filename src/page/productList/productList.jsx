@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllProducts } from "../../api/product";
-import { Skeleton, message } from "antd"; // Import message for notifications
+import { Skeleton, message } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../store/reducer/cartSlice";
@@ -18,15 +18,9 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(PRODUCT_PER_PAGE);
-
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const categoryFromUrl = queryParams.get('category') || "All";
-
-  // Dynamically construct base URL for images
-  const API_BASE_URL_FOR_IMAGES = import.meta.env.VITE_API_BASE_URL
-    ? import.meta.env.VITE_API_BASE_URL.replace("/api", "")
-    : "http://localhost:5000";
+  const categoryFromUrl = queryParams.get("category") || "All";
 
   useEffect(() => {
     setSelectedCategory(categoryFromUrl);
@@ -51,29 +45,26 @@ const ProductList = () => {
   }, []);
 
   const filteredProducts = products.filter((product) => {
-    const inCategory =
-      selectedCategory === "All" || product.category === selectedCategory;
+    const inCategory = selectedCategory === "All" || product.category === selectedCategory;
     const price = parseFloat(product.price);
     const min = parseFloat(minPrice);
     const max = parseFloat(maxPrice);
-
     const inMinPrice = isNaN(min) || price >= min;
     const inMaxPrice = isNaN(max) || price <= max;
-
     return inCategory && inMinPrice && inMaxPrice;
   });
 
   const productsToDisplay = filteredProducts.slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + PRODUCT_PER_PAGE);
+    setVisibleCount(prev => prev + PRODUCT_PER_PAGE);
   };
 
   const handleAddToCart = (product, event) => {
     event.preventDefault();
     event.stopPropagation();
     dispatch(addToCart(product));
-    message.success(`${product.name} added to cart!`); // Use Ant Design message
+    message.success(`${product.name} added to cart!`);
   };
 
   if (loading) {
@@ -104,8 +95,6 @@ const ProductList = () => {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-900">Our Products</h2>
-
-        {/* Category Filters */}
         <div className="flex flex-wrap gap-3 justify-center mb-10 p-4 bg-white rounded-xl shadow-lg">
           {categories.map((category) => (
             <button
@@ -121,8 +110,6 @@ const ProductList = () => {
             </button>
           ))}
         </div>
-
-        {/* Price Filters */}
         <div className="flex flex-wrap gap-4 justify-center items-center mb-10 p-4 bg-white rounded-xl shadow-lg">
           <input
             type="number"
@@ -149,8 +136,6 @@ const ProductList = () => {
             Clear Filters
           </button>
         </div>
-
-        {/* Products List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {productsToDisplay.length > 0 ? (
             productsToDisplay.map((product) => (
@@ -160,11 +145,7 @@ const ProductList = () => {
                 className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105 flex flex-col"
               >
                 <img
-                  src={
-                    product.imageUrl
-                      ? `${API_BASE_URL_FOR_IMAGES}${product.imageUrl}` // Use the consistent base URL
-                      : "https://placehold.co/400x300?text=No+Image"
-                  }
+                  src={product.imageUrl || "https://placehold.co/400x300?text=No+Image"} // product.imageUrl artıq tam Cloudinary URL-i olmalıdır
                   alt={product.name}
                   className="w-full h-48 object-cover object-center"
                   onError={(e) => {
@@ -198,17 +179,16 @@ const ProductList = () => {
             </p>
           )}
         </div>
-
-          {visibleCount < filteredProducts.length && (
-            <div className="flex justify-center mt-10">
-              <button
-                onClick={handleLoadMore}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-lg"
-              >
-                Load More
-              </button>
-            </div>
-          )}
+        {visibleCount < filteredProducts.length && (
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={handleLoadMore}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-lg"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -33,9 +33,10 @@ const Home = () => {
     )
     .filter(Boolean);
 
-  const API_BASE_URL_FOR_IMAGES = import.meta.env.VITE_API_BASE_URL
-    ? import.meta.env.VITE_API_BASE_URL.replace("/api", "")
-    : "http://localhost:5000";
+  // Bu dəyişənə artıq ehtiyac yoxdur, çünki product.imageUrl artıq tam Cloudinary URL-i olacaq.
+  // const API_BASE_URL_FOR_IMAGES = import.meta.env.VITE_API_BASE_URL
+  //   ? import.meta.env.VITE_API_BASE_URL.replace("/api", "")
+  //   : "http://localhost:5000";
 
   if (loading) {
     return (
@@ -109,8 +110,8 @@ const Home = () => {
               <div className="relative w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
                 <img
                   src={
-                    product.imageUrl
-                      ? `${API_BASE_URL_FOR_IMAGES}${product.imageUrl}`
+                    product.imageUrl // product.imageUrl artıq tam Cloudinary URL-i olmalıdır
+                      ? product.imageUrl
                       : "https://placehold.co/400x300?text=No+Image"
                   }
                   alt={product.name}
