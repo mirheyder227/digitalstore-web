@@ -1,3 +1,4 @@
+// redux/store.js
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import {
   persistStore,
@@ -9,38 +10,32 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // localStorage üçün default storage
-import authReducer from "./reducer/authSlice.js"; // Assuming this path is correct
-import cartReducer from "./reducer/cartSlice.js"; // Import the cart reducer
+import storage from "redux-persist/lib/storage";
+import authReducer from "./reducer/authSlice.js";
+import cartReducer from "./reducer/cartSlice.js";
 
-// Bütün reducer-ləri birləşdirir
 const rootReducer = combineReducers({
   auth: authReducer,
-  cart: cartReducer, // Add the cart reducer here
+  cart: cartReducer,
 });
 
-// Redux Persist konfiqurasiyası
 const persistConfig = {
-  key: "root", // localStorage-da saxlanılacaq əsas açar
+  key: "root",
   version: 1,
-  storage, // İstifadə olunacaq saxlama mexanizmi (localStorage)
-  whitelist: ["auth", "cart"], // Yalnız 'auth' və 'cart' state-lərini persist et
+  storage,
+  whitelist: ["auth", "cart"],
 };
 
-// Persisted reducer yaradır
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Redux Store-u konfiqurasiya edir
 export const store = configureStore({
-  reducer: persistedReducer, // Persisted reducer istifadə olunur
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // Redux Persist tərəfindən dispatch olunan action-ların serializability yoxlamasını keçmək üçün
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
 });
 
-// Persisted store-u yaradır
 export const persistor = persistStore(store);

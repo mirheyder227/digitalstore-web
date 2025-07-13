@@ -1,11 +1,7 @@
+
+// api/book.js
 import { instance } from "./index";
 
-/**
- * Kitabları axtarış sorğusuna əsasən çəkir.
- * @param {string} query - Axtarış sözü.
- * @returns {Promise<Array>} - Tapılan kitabların massivi.
- * @throws {Error} - API çağırışı zamanı xəta baş verərsə.
- */
 export const searchBooks = async (query) => {
   try {
     const response = await instance.get(
@@ -17,7 +13,6 @@ export const searchBooks = async (query) => {
     }
     return response.data;
   } catch (error) {
-    console.error("Kitablar axtarılarkən xəta:", error);
     if (error.response) {
       throw (
         error.response.data?.message ||

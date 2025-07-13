@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../store/reducer/authSlice"; // Async thunk action
+import { loginUser } from "../../store/reducer/authSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -13,12 +13,11 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Əgər istifadəçi artıq daxil olubsa, əsas səhifəyə yönləndir
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/");
     }
-  }, [isAuthenticated, navigate]); // isAuthenticated və navigate dəyişdikdə işə düşür
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,20 +26,16 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage(""); // Yeni cəhddən əvvəl əvvəlki mesajları təmizlə
+    setSuccessMessage("");
 
-    // loginUser thunk-ı işə sal
     const resultAction = await dispatch(loginUser(formData));
 
-    // `unwrapResult` istifadə etmək daha təhlükəsizdir, ancaq `fulfilled.match` da işləyir.
     if (loginUser.fulfilled.match(resultAction)) {
       setSuccessMessage("Daxil olma uğurludur! Yönləndirilirsiniz...");
       setTimeout(() => {
-        navigate("/"); // Uğurlu daxil olandan sonra əsas səhifəyə yönləndir
+        navigate("/");
       }, 1000);
     }
-    // `loginUser.rejected.match(resultAction)` halında, xəta avtomatik olaraq Redux state-ə yazıldığı üçün
-    // error mesajı `error && <p>` şərtinə görə göstəriləcək.
   };
 
   return (

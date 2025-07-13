@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+
+ 
+ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../api/auth";
 import { useDispatch } from "react-redux";
@@ -6,7 +8,6 @@ import { loginUser } from "../../store/reducer/authSlice";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    userName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -17,34 +18,27 @@ const SignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Şifrələr uyğun gəlmir.");
       return;
     }
 
     setLoading(true);
     try {
-      // Send user registration data including userName
       await register({
         email: formData.email,
         password: formData.password,
-        userName: formData.userName,
       });
 
-      console.log("Registration successful.");
-
-      // Automatically log in the user after successful registration
       const resultAction = await dispatch(
         loginUser({
           email: formData.email,
@@ -52,19 +46,15 @@ const SignUp = () => {
         })
       );
 
-      // Check login result and navigate accordingly
-      if (resultAction.payload) {
+      if (loginUser.fulfilled.match(resultAction)) {
         navigate("/");
-      } else if (resultAction.error) {
-        setError(
-          resultAction.error.message || "Login failed after registration."
-        );
+      } else if (loginUser.rejected.match(resultAction)) {
+        setError(resultAction.payload || "Qeydiyyatdan sonra daxil olma uğursuz oldu.");
       } else {
         navigate("/");
       }
     } catch (err) {
-      setError(err?.message || "An error occurred during registration.");
-      console.error("Registration error:", err);
+      setError(err?.message || "Qeydiyyat zamanı xəta baş verdi.");
     } finally {
       setLoading(false);
     }
@@ -81,29 +71,11 @@ const SignUp = () => {
 
       <div className="relative z-10 p-8 rounded-lg shadow-xl text-center max-w-md w-full bg-white bg-opacity-10 backdrop-blur-sm">
         <h2 className="text-3xl font-bold text-white mb-8">
-          Create New Account
+          Yeni Hesab Yarat
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label
-              htmlFor="userName"
-              className="block text-white text-left mb-1"
-            >
-              User Name
-            </label>
-            <input
-              type="text"
-              id="userName"
-              name="userName"
-              value={formData.userName}
-              onChange={handleChange}
-              required
-              placeholder="Your user name"
-              className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
-            />
-          </div>
-
+          {/* UserName sahəsi çıxarıldı */}
           <div>
             <label htmlFor="email" className="block text-white text-left mb-1">
               Email
@@ -126,7 +98,7 @@ const SignUp = () => {
               htmlFor="password"
               className="block text-white text-left mb-1"
             >
-              Password
+              Şifrə
             </label>
             <input
               type="password"
@@ -135,7 +107,7 @@ const SignUp = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter your password"
+              placeholder="Şifrənizi daxil edin"
               className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
               autoComplete="new-password"
             />
@@ -146,7 +118,7 @@ const SignUp = () => {
               htmlFor="confirmPassword"
               className="block text-white text-left mb-1"
             >
-              Confirm Password
+              Şifrəni Təsdiqlə
             </label>
             <input
               type="password"
@@ -155,7 +127,7 @@ const SignUp = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="Re-enter your password"
+              placeholder="Şifrənizi yenidən daxil edin"
               className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
               autoComplete="new-password"
             />
@@ -168,17 +140,17 @@ const SignUp = () => {
             disabled={loading}
             className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-md w-full transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50"
           >
-            {loading ? "Registering..." : "Sign Up"}
+            {loading ? "Qeydiyyatdan Keçilir..." : "Qeydiyyatdan Keç"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-white/80">
-          Already have an account?{" "}
+          Artıq hesabınız var?{" "}
           <Link
             to="/login"
             className="text-white font-semibold hover:underline"
           >
-            Log In
+            Daxil Ol
           </Link>
         </p>
       </div>

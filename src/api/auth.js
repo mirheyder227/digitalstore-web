@@ -1,10 +1,9 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// api/auth.js
+import { instance } from "./index";
 
 export const register = async (userData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/signup`, userData);
+    const response = await instance.post("/auth/signup", userData);
     const { token, user } = response.data;
     if (token) {
       localStorage.setItem("token", token);
@@ -13,7 +12,7 @@ export const register = async (userData) => {
     return { token, user };
   } catch (error) {
     if (error.response) {
-      throw error.response.data?.error?.message || error.message;
+      throw error.response.data?.message || error.message;
     } else {
       throw error.message;
     }
@@ -22,7 +21,7 @@ export const register = async (userData) => {
 
 export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
+    const response = await instance.post("/auth/login", credentials);
     const { token, user } = response.data;
     if (!token) {
       throw new Error("Serverdən token gəlmədi.");
@@ -32,7 +31,7 @@ export const login = async (credentials) => {
     return { token, user };
   } catch (error) {
     if (error.response) {
-      throw error.response.data?.error?.message || error.message;
+      throw error.response.data?.message || error.message;
     } else {
       throw error.message;
     }
