@@ -56,7 +56,7 @@ const Footer = () => {
         <Link to="#" className="mb-1 hover:text-red-500 text-zinc-200">
           Recently Viewed
         </Link>
-        <Link to="#" className="mb-1 hover:text-red-500 text-zinc-200">
+        <Link   className="mb-1 hover:text-red-500 text-zinc-200">
           Deals & Discounts
         </Link>
         <Link
@@ -100,7 +100,7 @@ const Footer = () => {
       </div>
 
     <div className="w-full flex flex-col md:flex-row justify-between items-center mt-6 border-t border-zinc-400 pt-4">
-    <p className="text-sm mb-2 md:mb-0">© 2025 Mirheyder Avion LTD</p>
+    <p className="text-sm mb-2 md:mb-0">© 2025 Heyder Avion LTD</p>
     <div className="flex flex-row items-center gap-4">
       <a
         href="https://www.instagram.com/444heyder/"

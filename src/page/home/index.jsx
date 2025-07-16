@@ -5,13 +5,14 @@ import Advertising from "../../components/common/advertising";
 import { getAllProducts } from "../../api/product";
 import { Link } from "react-router-dom";
 import { Skeleton } from "antd";
-import { AboutUs } from "../../components";
+import { AboutUs } from "../../components"; // AboutUs komponenti saxlanıldı
 
 const categories = ["Phone", "Computer", "Smart Watch", "Earphone"];
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  // const [currentUser, setCurrentUser] = useState(null); // Userə aid olduğu üçün silindi
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,7 +25,21 @@ const Home = () => {
         setLoading(false);
       }
     };
+
+    // const loadUserData = () => { // Userə aid olduğu üçün silindi
+    //   try {
+    //     const storedUser = localStorage.getItem("user");
+    //     if (storedUser) {
+    //       setCurrentUser(JSON.parse(storedUser));
+    //     }
+    //   } catch (error) {
+    //     console.error("Failed to parse user data from localStorage:", error);
+    //     localStorage.removeItem("user");
+    //   }
+    // };
+
     fetchProducts();
+    // loadUserData(); // Load user data when component mounts // Userə aid olduğu üçün silindi
   }, []);
 
   const productsByCategory = categories
@@ -32,11 +47,6 @@ const Home = () => {
       products.find((product) => product.category === category)
     )
     .filter(Boolean);
-
-  // Bu dəyişənə artıq ehtiyac yoxdur, çünki product.imageUrl artıq tam Cloudinary URL-i olacaq.
-  // const API_BASE_URL_FOR_IMAGES = import.meta.env.VITE_API_BASE_URL
-  //   ? import.meta.env.VITE_API_BASE_URL.replace("/api", "")
-  //   : "http://localhost:5000";
 
   if (loading) {
     return (
@@ -69,11 +79,11 @@ const Home = () => {
           "url('https://images.unsplash.com/photo-1611175694984-df2c22b130c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80')",
       }}
     >
-      {/* Abstract Blur Dairələr */}
+      {/* Abstract Blur Circles */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500 rounded-full opacity-20 blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-500 rounded-full opacity-20 blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <Hero />
 
       {/* Advertising Section */}
@@ -110,7 +120,7 @@ const Home = () => {
               <div className="relative w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
                 <img
                   src={
-                    product.imageUrl // product.imageUrl artıq tam Cloudinary URL-i olmalıdır
+                    product.imageUrl // product.imageUrl should now be the full Cloudinary URL
                       ? product.imageUrl
                       : "https://placehold.co/400x300?text=No+Image"
                   }
@@ -152,8 +162,9 @@ const Home = () => {
         <div className="relative z-10 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16 text-center md:text-left">
           <div className="flex flex-col md:w-3/5 gap-6">
             <h3 className="font-extrabold text-white text-5xl md:text-6xl leading-tight drop-shadow-lg">
-              Unlock Exclusive <span className="text-yellow-400">Insights</span>{" "}
-              & <span className="text-sky-400">Offers</span>!
+              Unlock Exclusive{" "}
+              <span className="text-yellow-400">Insights</span> &{" "}
+              <span className="text-sky-400">Offers</span>!
             </h3>
             <p className="font-light text-gray-300 text-xl md:text-2xl leading-relaxed opacity-95">
               Subscribe to our premium newsletter and be the first to receive

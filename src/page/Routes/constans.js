@@ -6,7 +6,7 @@ export const roots = {
   Admin: '/admin',
   Error: '/error',
   ProductList: '/productList',
-  ProductDetails: '/product/:id', // Renamed for clarity, if you prefer
+  ProductDetails: '/product/:id', 
   Payment: '/payment',
   AboutUs: '/aboutUs',
   ContactUs: '/contactUs'

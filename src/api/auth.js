@@ -1,4 +1,5 @@
-// api/auth.js
+
+// src/api/auth.js
 import { instance } from "./index";
 
 export const register = async (userData) => {

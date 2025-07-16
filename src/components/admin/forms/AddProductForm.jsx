@@ -1,44 +1,50 @@
+// src/components/admin/forms/AddProductForm.jsx
 import React, { useState } from 'react';
-import { addProduct } from '../../../api/product'; // addProduct funksiyasını import edin
+import { addProduct } from '../../../api/product';
+import { message } from 'antd'; // Ant Design message komponentini import edin
 
-const AddProductForm = () => {
+const AddProductForm = ({ onAddSuccess }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
   const [image, setImage] = useState(null); // Fayl obyektini saxlamaq üçün
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // Yüklənmə vəziyyəti
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
-
-    // FormData istifadə edərək faylı və digər məlumatları göndəririk
+    setLoading(true); // Yüklənməni başlat
+    
     const formData = new FormData();
     formData.append('name', name);
     formData.append('description', description);
     formData.append('price', price);
     formData.append('category', category);
     if (image) {
-      formData.append('image', image); // 'image' Multer-də təyin etdiyimiz sahə adıdır
+      // DİQQƏT: Backend Multer 'productImage' adını gözləyir!
+      formData.append('productImage', image); 
     }
 
     try {
-      const response = await addProduct(formData);
-      setMessage(response.message || 'Məhsul uğurla əlavə edildi!');
+      await addProduct(formData);
+      message.success('Məhsul uğurla əlavə edildi!');
+      
       // Formanı sıfırlayın
       setName('');
       setDescription('');
       setPrice('');
       setCategory('');
       setImage(null);
-      // Fayl inputunu da sıfırlamaq üçün bir ref istifadə edə bilərsiniz
-      e.target.reset(); // Formanı sıfırlamaq üçün
+      e.target.reset(); // Fayl inputunu da sıfırlamaq üçün
+
+      if (onAddSuccess) {
+        onAddSuccess(); // Valideyn komponentə uğurlu əlavə etmə barədə məlumat verin
+      }
     } catch (err) {
       console.error('Məhsul əlavə edilərkən xəta:', err);
-      setError(err.message || 'Məhsul əlavə edilərkən xəta baş verdi.');
+      message.error(err.message || 'Məhsul əlavə edilərkən xəta baş verdi.');
+    } finally {
+      setLoading(false); // Yüklənməni bitir
     }
   };
 
@@ -105,7 +111,7 @@ const AddProductForm = () => {
           <input
             type="file"
             id="image"
-            name="image" // BU ÇOX VACİBDİR! Multer-dəki 'image' ilə eyni olmalıdır.
+            name="productImage" // Bu ad backend-də Multer tərəfindən gözlənilən adla eyni olmalıdır!
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             onChange={(e) => setImage(e.target.files[0])}
           />
@@ -114,12 +120,11 @@ const AddProductForm = () => {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            disabled={loading} // Yüklənmə zamanı düyməni qeyri-aktiv edin
           >
-            Məhsulu Əlavə Et
+            {loading ? 'Əlavə Edilir...' : 'Məhsulu Əlavə Et'}
           </button>
         </div>
-        {message && <p className="text-green-500 text-xs italic mt-4">{message}</p>}
-        {error && <p className="text-red-500 text-xs italic mt-4">{error}</p>}
       </form>
     </div>
   );

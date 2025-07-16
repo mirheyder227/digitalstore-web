@@ -1,3 +1,5 @@
+
+// src/store/reducer/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { login } from "../../api/auth";
 
@@ -9,7 +11,7 @@ export const loginUser = createAsyncThunk(
       const { token, user } = response;
 
       if (!token) {
-        throw new Error("Token serverdən gəlmədi.");
+        throw new Error("Token not received from server.");
       }
 
       localStorage.setItem("token", token);
@@ -17,7 +19,8 @@ export const loginUser = createAsyncThunk(
 
       return { token, user };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Daxil olma uğursuz oldu";
+      const errorMessage =
+        error.response?.data?.message || error.message || "Login failed";
       return rejectWithValue(errorMessage);
     }
   }
@@ -25,7 +28,9 @@ export const loginUser = createAsyncThunk(
 
 const initialState = {
   token: localStorage.getItem("token") || null,
-  user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
+  user: localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null,
   loading: false,
   error: null,
   isAuthenticated: !!localStorage.getItem("token"),
@@ -67,7 +72,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Daxil olma uğursuz oldu";
+        state.error = action.payload || "Login failed";
         state.isAuthenticated = false;
         state.token = null;
         state.user = null;

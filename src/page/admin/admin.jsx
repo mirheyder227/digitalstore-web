@@ -1,10 +1,11 @@
+// src/pages/Admin.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/reducer/authSlice";
 import { fetchDashboardStats, fetchRecentActivities } from "../../api/admin";
 import { getAllProducts, deleteProduct } from "../../api/product";
-import { message, Modal, Skeleton } from "antd";
+import { message, Modal, Skeleton } from "antd"; // Ant Design komponentləri
 import AddProductForm from "../../components/admin/forms/AddProductForm";
 import ProductEditForm from "../../components/admin/forms/ProductEditForm";
 
@@ -48,7 +49,7 @@ const Admin = () => {
     setLoadingStats(true);
     setErrorStats(null);
     try {
-      const statsData = await fetchDashboardStats(token);
+      const statsData = await fetchDashboardStats();
       setDashboardStats(statsData);
     } catch (err) {
       console.error(
@@ -68,7 +69,7 @@ const Admin = () => {
     setLoadingActivities(true);
     setErrorActivities(null);
     try {
-      const activitiesData = await fetchRecentActivities(token);
+      const activitiesData = await fetchRecentActivities();
       setRecentActivities(activitiesData);
     } catch (err) {
       console.error(
@@ -88,15 +89,15 @@ const Admin = () => {
     setLoadingProducts(true);
     setErrorProducts(null);
     try {
-      const productsData = await getAllProducts(); // No .data needed here
+      const productsData = await getAllProducts();
 
       if (!Array.isArray(productsData)) {
-        console.error("Backend did not return an array for products:", productsData);
+        console.error("Backend məhsullar üçün massiv qaytarmadı:", productsData);
         throw new Error("Məhsul məlumatları düzgün formatda deyil.");
       }
 
       const formattedProducts = productsData.map((item) => ({
-        id: item._id || item.id, // Use _id or id based on your database
+        id: item._id || item.id,
         name: item.name,
         description: item.description,
         price: item.price,
@@ -115,6 +116,7 @@ const Admin = () => {
   };
 
   const handleDelete = (productId) => {
+    console.log("handleDelete funksiyası çağırıldı. Məhsul ID:", productId);
     Modal.confirm({
       title: "Məhsulu silmək istəyirsiniz?",
       content: "Bu əməliyyat geri qaytarıla bilməz.",
@@ -122,10 +124,9 @@ const Admin = () => {
       okType: "danger",
       cancelText: "Ləğv Et",
       onOk: async () => {
+        console.log("Silmə təsdiqləndi. Silinəcək ID:", productId);
         try {
-          // Düzəliş burada: deleteProduct funksiyasına token göndərməyin.
-          // Axios instance artıq tokeni avtomatik olaraq header-ə əlavə edir.
-          await deleteProduct(productId);
+          await deleteProduct(productId); // API çağırışını aktivləşdiririk
           message.success("Məhsul uğurla silindi!");
           fetchProducts(); // Silindikdən sonra məhsul siyahısını yeniləyin
         } catch (err) {
@@ -133,12 +134,15 @@ const Admin = () => {
           message.error(err.message || "Silinərkən xəta baş verdi.");
         }
       },
+      onCancel: () => {
+        console.log("Silmə ləğv edildi.");
+      }
     });
   };
 
   const handleEditClick = (product) => {
     setEditingProduct(product);
-    setShowAddForm(false); // Hide add form when showing edit form
+    setShowAddForm(false);
   };
 
   const handleCancelEdit = () => {
@@ -146,15 +150,14 @@ const Admin = () => {
   };
 
   const handleEditSuccess = () => {
-    setEditingProduct(null); // Close edit form
-    fetchProducts(); // Refresh products list
-    // Ant Design message.success is already called inside ProductEditForm
+    setEditingProduct(null);
+    fetchProducts();
   };
 
   const handleAddSuccess = () => {
-    setShowAddForm(false); // Close add form
-    fetchProducts(); // Refresh products list
-    // Ant Design message.success is already called inside AddProductForm (if implemented)
+    setShowAddForm(false);
+    fetchProducts();
+    message.success("Məhsul uğurla əlavə edildi!");
   };
 
   const handleLogout = () => {
@@ -240,7 +243,7 @@ const Admin = () => {
           <button
             onClick={() => {
               setShowAddForm(!showAddForm);
-              setEditingProduct(null); // Hide edit form when showing add form
+              setEditingProduct(null);
             }}
             className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
           >
@@ -253,7 +256,7 @@ const Admin = () => {
             <h3 className="text-2xl font-bold text-white mb-4">
               Yeni Məhsul Əlavə Et
             </h3>
-            <AddProductForm onAddSuccess={handleAddSuccess} token={token} />
+            <AddProductForm onAddSuccess={handleAddSuccess} /> 
           </div>
         )}
 
@@ -266,7 +269,6 @@ const Admin = () => {
               product={editingProduct}
               onEditSuccess={handleEditSuccess}
               onCancel={handleCancelEdit}
-              token={token}
             />
           </div>
         )}
@@ -312,7 +314,7 @@ const Admin = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {p.imageUrl ? (
                         <img
-                          src={`${API_BASE_URL_FOR_IMAGES}${p.imageUrl}`}
+                          src={p.imageUrl}
                           alt={p.name}
                           className="w-16 h-16 object-cover rounded"
                           onError={(e) => {
@@ -351,7 +353,7 @@ const Admin = () => {
                         Redaktə
                       </button>
                       <button
-                        onClick={() => handleDelete(p.id)}
+                        onClick={() => handleDelete(p.id)} // handleDelete funksiyasını çağırırıq
                         className="bg-red-600 py-1 px-3 rounded hover:bg-red-700 transition duration-150 ease-in-out transform hover:scale-105"
                       >
                         Sil

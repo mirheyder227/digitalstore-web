@@ -1,5 +1,3 @@
-
-// api/admin.js
 import { instance } from "./index";
 
 export const fetchDashboardStats = async () => {
@@ -19,4 +17,3 @@ export const fetchRecentActivities = async () => {
     throw error.response?.data?.error?.message || error.message;
   }
 };
-

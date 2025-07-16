@@ -1,14 +1,13 @@
-
- 
- import React, { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../../api/auth";
+import { register } from "../../api/auth"; // Make sure this path is correct
 import { useDispatch } from "react-redux";
-import { loginUser } from "../../store/reducer/authSlice";
+import { loginUser } from "../../store/reducer/authSlice"; // Make sure this path is correct
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
     password: "",
     confirmPassword: "",
   });
@@ -28,7 +27,7 @@ const SignUp = () => {
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Şifrələr uyğun gəlmir.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -36,6 +35,7 @@ const SignUp = () => {
     try {
       await register({
         email: formData.email,
+        username: formData.username,
         password: formData.password,
       });
 
@@ -49,12 +49,12 @@ const SignUp = () => {
       if (loginUser.fulfilled.match(resultAction)) {
         navigate("/");
       } else if (loginUser.rejected.match(resultAction)) {
-        setError(resultAction.payload || "Qeydiyyatdan sonra daxil olma uğursuz oldu.");
-      } else {
-        navigate("/");
+        setError(
+          resultAction.payload || "Registration successful, but login failed."
+        );
       }
     } catch (err) {
-      setError(err?.message || "Qeydiyyat zamanı xəta baş verdi.");
+      setError(err.message || "An unexpected error occurred during registration."); // Better error handling
     } finally {
       setLoading(false);
     }
@@ -62,22 +62,25 @@ const SignUp = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
-      style={{
-        backgroundImage: `url('https://avatars.mds.yandex.net/i?id=8044cf0ce5d3d556974445d2602c2fc724875a5f-6472467-images-thumbs&n=13')`,
-      }}
+      className="min-h-screen flex items-center justify-center relative p-4
+                 bg-gradient-to-br from-dark-purple to-light-purple
+                 bg-[length:200%_200%] animate-gradient-bg overflow-hidden"
     >
-      <div className="absolute inset-0 bg-black bg-opacity-60 z-0"></div>
+      {/* Decorative background elements (optional, but adds flair) */}
+      <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-accent-blue rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+      <div className="absolute bottom-1/3 right-1/3 w-40 h-40 bg-accent-pink rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-accent-blue rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
 
-      <div className="relative z-10 p-8 rounded-lg shadow-xl text-center max-w-md w-full bg-white bg-opacity-10 backdrop-blur-sm">
-        <h2 className="text-3xl font-bold text-white mb-8">
-          Yeni Hesab Yarat
+      <div className="relative z-10 p-8 rounded-3xl shadow-2xl text-center max-w-md w-full
+                      bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border border-white/20
+                      transform transition-all duration-500 ease-in-out hover:scale-[1.02] animate-fade-in-pop">
+        <h2 className="text-4xl font-extrabold text-white mb-8 drop-shadow-md tracking-wide">
+          Create Account
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* UserName sahəsi çıxarıldı */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-white text-left mb-1">
+            <label htmlFor="email" className="block text-white text-left mb-2 text-lg font-medium">
               Email
             </label>
             <input
@@ -87,18 +90,38 @@ const SignUp = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="email@example.com"
-              className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
+              placeholder="your@example.com"
+              className="w-full px-5 py-3 rounded-xl border border-transparent
+                         bg-white/20 text-white placeholder-white/60 focus:outline-none
+                         focus:border-accent-blue focus:ring-2 focus:ring-accent-blue
+                         transition duration-300 ease-in-out hover:bg-white/30"
               autoComplete="email"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-white text-left mb-1"
-            >
-              Şifrə
+            <label htmlFor="username" className="block text-white text-left mb-2 text-lg font-medium">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              placeholder="Choose a username"
+              className="w-full px-5 py-3 rounded-xl border border-transparent
+                         bg-white/20 text-white placeholder-white/60 focus:outline-none
+                         focus:border-accent-blue focus:ring-2 focus:ring-accent-blue
+                         transition duration-300 ease-in-out hover:bg-white/30"
+              autoComplete="username"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-white text-left mb-2 text-lg font-medium">
+              Password
             </label>
             <input
               type="password"
@@ -107,18 +130,18 @@ const SignUp = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Şifrənizi daxil edin"
-              className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
+              placeholder="Minimum 8 characters"
+              className="w-full px-5 py-3 rounded-xl border border-transparent
+                         bg-white/20 text-white placeholder-white/60 focus:outline-none
+                         focus:border-accent-blue focus:ring-2 focus:ring-accent-blue
+                         transition duration-300 ease-in-out hover:bg-white/30"
               autoComplete="new-password"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-white text-left mb-1"
-            >
-              Şifrəni Təsdiqlə
+            <label htmlFor="confirmPassword" className="block text-white text-left mb-2 text-lg font-medium">
+              Confirm Password
             </label>
             <input
               type="password"
@@ -127,30 +150,37 @@ const SignUp = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="Şifrənizi yenidən daxil edin"
-              className="pl-4 pr-4 py-3 w-full rounded-md border-0 focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white/20 placeholder-gray-500"
+              placeholder="Re-enter your password"
+              className="w-full px-5 py-3 rounded-xl border border-transparent
+                         bg-white/20 text-white placeholder-white/60 focus:outline-none
+                         focus:border-accent-blue focus:ring-2 focus:ring-accent-blue
+                         transition duration-300 ease-in-out hover:bg-white/30"
               autoComplete="new-password"
             />
           </div>
 
-          {error && <p className="text-red-400 text-center text-sm">{error}</p>}
+          {error && <p className="text-red-300 text-sm font-semibold mt-3 animate-pulse">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-md w-full transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50"
+            className="w-full py-3.5 px-6 rounded-xl font-bold text-white text-xl
+                       bg-gradient-to-r from-accent-blue to-accent-pink
+                       shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]
+                       transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed
+                       relative overflow-hidden group"
           >
-            {loading ? "Qeydiyyatdan Keçilir..." : "Qeydiyyatdan Keç"}
+            <span className="relative z-10">
+              {loading ? "Registering..." : "Sign Up"}
+            </span>
+            <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
           </button>
         </form>
 
-        <p className="mt-6 text-center text-white/80">
-          Artıq hesabınız var?{" "}
-          <Link
-            to="/login"
-            className="text-white font-semibold hover:underline"
-          >
-            Daxil Ol
+        <p className="mt-8 text-center text-white/80">
+          Already have an account?{" "}
+          <Link to="/login" className="text-accent-blue font-bold hover:underline hover:text-accent-pink transition duration-300">
+            Log In
           </Link>
         </p>
       </div>
