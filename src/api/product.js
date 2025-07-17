@@ -3,7 +3,6 @@ import { instance } from "./index";
 
 /**
  * Bütün məhsulları çəkir.
- * @returns {Promise<Array>} - Bütün məhsulları qaytaran promise.
  */
 export const getAllProducts = async () => {
   try {
@@ -25,8 +24,6 @@ export const getAllProducts = async () => {
 
 /**
  * Tək bir məhsulu ID-sinə görə çəkir.
- * @param {string} productId - Məhsulun ID-si.
- * @returns {Promise<Object>} - Məhsul məlumatlarını qaytaran promise.
  */
 export const getSingleProduct = async (productId) => {
   try {
@@ -48,13 +45,12 @@ export const getSingleProduct = async (productId) => {
 
 /**
  * Yeni məhsul əlavə edir.
- * @param {Object} productData - Əlavə olunacaq məhsulun məlumatları (FormData formatında ola bilər).
- * @returns {Promise<Object>} - Əlavə edilmiş məhsulun məlumatlarını qaytaran promise.
+ * FormData obyektində şəkil adı `image` olmalıdır.
  */
 export const addProduct = async (productData) => {
   try {
     const response = await instance.post("/products", productData, {
-      headers: { 'Content-Type': 'multipart/form-data' } // Fayl yükləmə üçün vacibdir
+      headers: { 'Content-Type': 'multipart/form-data' } // optional, axios özü əlavə edir
     });
     return response.data;
   } catch (error) {
@@ -64,14 +60,12 @@ export const addProduct = async (productData) => {
 
 /**
  * Mövcud məhsulu yeniləyir.
- * @param {string} productId - Yenilənəcək məhsulun ID-si.
- * @param {Object} productData - Yenilənəcək məhsulun məlumatları (FormData formatında ola bilər).
- * @returns {Promise<Object>} - Yenilənmiş məhsulun məlumatlarını qaytaran promise.
+ * FormData obyektində şəkil adı `image` olmalıdır.
  */
 export const updateProduct = async (productId, productData) => {
   try {
     const response = await instance.put(`/products/${productId}`, productData, {
-      headers: { 'Content-Type': 'multipart/form-data' } // Fayl yükləmə üçün vacibdir
+      headers: { 'Content-Type': 'multipart/form-data' } // optional
     });
     return response.data;
   } catch (error) {
@@ -81,8 +75,6 @@ export const updateProduct = async (productId, productData) => {
 
 /**
  * Məhsulu silir.
- * @param {string} productId - Silinəcək məhsulun ID-si.
- * @returns {Promise<Object>} - Silmə əməliyyatının cavabını qaytaran promise.
  */
 export const deleteProduct = async (productId) => {
   try {
@@ -95,21 +87,14 @@ export const deleteProduct = async (productId) => {
 
 /**
  * Məhsulları axtarış sorğusuna əsasən çəkir.
- * @param {string} query - Axtarış sorğusu.
- * @returns {Promise<Array>} - Axtarış nəticələrini qaytaran promise.
  */
 export const searchProducts = async (query) => {
   try {
-    const response = await instance.get(
-      `/products/search?q=${encodeURIComponent(query)}`
-    );
+    const response = await instance.get(`/products/search?q=${encodeURIComponent(query)}`);
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw (
-        error.response.data?.message ||
-        `Server xətası: ${error.response.status}`
-      );
+      throw error.response.data?.message || `Server xətası: ${error.response.status}`;
     } else if (error.request) {
       throw new Error("Serverə qoşulmaq mümkün olmadı. Şəbəkə xətası.");
     } else {

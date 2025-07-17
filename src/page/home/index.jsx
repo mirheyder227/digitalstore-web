@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Hero from "../../components/common/hero";
-import { brend } from "../js/db";
+import { brend } from "../js/db"; // brend datanızın yolu düzgündürsə dəyişməyin
 import Advertising from "../../components/common/advertising";
 import { getAllProducts } from "../../api/product";
 import { Link } from "react-router-dom";
 import { Skeleton } from "antd";
-import { AboutUs } from "../../components"; // AboutUs komponenti saxlanıldı
+import { AboutUs } from "../../components";
 
 const categories = ["Phone", "Computer", "Smart Watch", "Earphone"];
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const [currentUser, setCurrentUser] = useState(null); // Userə aid olduğu üçün silindi
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,20 +25,7 @@ const Home = () => {
       }
     };
 
-    // const loadUserData = () => { // Userə aid olduğu üçün silindi
-    //   try {
-    //     const storedUser = localStorage.getItem("user");
-    //     if (storedUser) {
-    //       setCurrentUser(JSON.parse(storedUser));
-    //     }
-    //   } catch (error) {
-    //     console.error("Failed to parse user data from localStorage:", error);
-    //     localStorage.removeItem("user");
-    //   }
-    // };
-
     fetchProducts();
-    // loadUserData(); // Load user data when component mounts // Userə aid olduğu üçün silindi
   }, []);
 
   const productsByCategory = categories
@@ -73,20 +59,17 @@ const Home = () => {
 
   return (
     <div
-      className="min-h-screen text-gray-900 dark:text-white bg-fixed bg-center bg-no-repeat bg-cover"
+      className="relative min-h-screen text-gray-900 dark:text-white bg-fixed bg-center bg-no-repeat bg-cover overflow-x-hidden" // overflow-x-hidden əlavə edildi
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1611175694984-df2c22b130c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80')",
       }}
     >
-      {/* Abstract Blur Circles */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500 rounded-full opacity-20 blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-500 rounded-full opacity-20 blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
 
-      {/* Hero Section */}
       <Hero />
 
-      {/* Advertising Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 text-center bg-gray-900 bg-opacity-70 rounded-3xl max-w-7xl mx-auto my-12">
         <h2 className="text-4xl font-extrabold text-white mb-12">
           What makes our brand{" "}
@@ -105,7 +88,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Products Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900 bg-opacity-80 rounded-3xl max-w-7xl mx-auto my-12">
         <h1 className="text-5xl font-extrabold mb-16 text-center text-white">
           Our <span className="text-yellow-400">Popular</span> Products
@@ -120,7 +102,7 @@ const Home = () => {
               <div className="relative w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
                 <img
                   src={
-                    product.imageUrl // product.imageUrl should now be the full Cloudinary URL
+                    product.imageUrl
                       ? product.imageUrl
                       : "https://placehold.co/400x300?text=No+Image"
                   }
@@ -154,7 +136,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
       <section className="w-full bg-gradient-to-br from-gray-800 to-gray-900 py-24 px-6 mt-24 relative overflow-hidden rounded-3xl mx-auto max-w-7xl shadow-3xl border border-gray-700">
         <div className="absolute top-0 left-0 w-64 h-64 bg-green-500 rounded-full opacity-10 blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-500 rounded-full opacity-10 blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
@@ -202,7 +183,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* About Us */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <AboutUs />
       </section>

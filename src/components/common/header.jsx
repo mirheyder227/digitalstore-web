@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import logo from "../../assets/image/header/red.png";
 import { logout as apiLogout } from "../../store/reducer/authSlice";
-import SearchProducts from "./search"; // SearchProduct əvəzinə SearchProducts import edirik
+import SearchProducts from "./search";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -12,7 +12,6 @@ const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
 
   const [menuOpen, setMenuOpen] = useState(false);
-
   const menuRef = useRef(null);
 
   const handleLogout = () => {
@@ -35,13 +34,11 @@ const Header = () => {
   return (
     <header className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-4 shadow-xl">
       <div className="container mx-auto flex flex-wrap items-center justify-between gap-4">
-        {/* Logo və Şirkət Adı */}
         <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
           <img src={logo} alt="TechMaze Logo" className="w-14 h-14 rounded-full border-2 border-white transform hover:scale-105 transition-transform duration-300" />
           <span className="text-2xl font-extrabold tracking-wide whitespace-nowrap">TechMaze</span>
         </Link>
 
-        {/* Desktop Naviqasiya Menyu */}
         <nav className="hidden md:flex space-x-7 text-lg font-medium flex-shrink-0">
           <Link to="/" className="hover:text-amber-300 transition-colors duration-200">Home</Link>
           <Link to="/productList" className="hover:text-amber-300 transition-colors duration-200">Products</Link>
@@ -49,16 +46,13 @@ const Header = () => {
           <Link to="/contactUs" className="hover:text-amber-300 transition-colors duration-200">Contact Us</Link>
         </nav>
 
-        {/* Axtarış Çubuğu - Desktopda daha geniş, mobildə tam en */}
         <div className="w-full md:w-auto flex-grow md:max-w-sm order-3 md:order-none mt-4 md:mt-0">
-          {/* SearchProduct əvəzinə SearchProducts komponentini istifadə edirik */}
-          <SearchProducts onProductSelect={(productId) => { // onBookSelect əvəzinə onProductSelect
-            navigate(`/product/${productId}`); // /book/ əvəzinə /product/
+          <SearchProducts onProductSelect={(productId) => {
+            navigate(`/product/${productId}`);
             setMenuOpen(false);
           }} />
         </div>
 
-        {/* İstifadəçi və Səbət İkonları - Desktopda sağda */}
         <div className="hidden md:flex items-center space-x-6 flex-shrink-0">
           {isAuthenticated ? (
             <>
@@ -85,7 +79,6 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Mobil Menyu Düyəsi */}
         <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden ml-auto text-white hover:text-amber-300 transition-colors duration-200 flex-shrink-0">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -94,7 +87,6 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobil Menyu Açılan Pəncərə */}
       {menuOpen && (
         <div ref={menuRef} className="mt-4 bg-emerald-800 p-5 rounded-lg shadow-2xl space-y-4 md:hidden animate-fade-in-down">
           <Link to="/" onClick={() => setMenuOpen(false)} className="block text-white hover:text-amber-300 transition-colors duration-200 text-lg font-medium py-2">Home</Link>
@@ -103,9 +95,8 @@ const Header = () => {
           <Link to="/contactUs" onClick={() => setMenuOpen(false)} className="block text-white hover:text-amber-300 transition-colors duration-200 text-lg font-medium py-2">Contact Us</Link>
 
           <div className="py-2">
-            {/* SearchProduct əvəzinə SearchProducts komponentini istifadə edirik */}
-            <SearchProducts onProductSelect={(productId) => { // onBookSelect əvəzinə onProductSelect
-              navigate(`/product/${productId}`); // /book/ əvəzinə /product/
+            <SearchProducts onProductSelect={(productId) => {
+              navigate(`/product/${productId}`);
               setMenuOpen(false);
             }} />
           </div>
