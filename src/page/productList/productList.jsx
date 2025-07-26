@@ -1,192 +1,161 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getAllProducts } from "../../api/product";
-import { Skeleton, message } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Skeleton } from "antd"; // Using Ant Design Skeleton for loading states
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../store/reducer/cartSlice";
-import basketIcon from "../../assets/image/header/basket-image.png";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 
-const categories = ["All", "Phone", "Computer", "Smart Watch", "Earphone", "Charger"];
-const PRODUCT_PER_PAGE = 8;
+// Reusable Custom Message Component (consider moving to a common folder like src/components/common)
+const CustomMessage = ({ message, type, onClose }) => {
+  const bgColor = {
+    success: "bg-green-500",
+    info: "bg-blue-500",
+    error: "bg-red-500",
+  }[type] || "bg-gray-700";
+  const textColor = "text-white";
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Message disappears after 3 seconds
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div
+      className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down ${bgColor} ${textColor}`}
+      role="alert"
+    >
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-4 text-white font-bold text-xl leading-none">&times;</button>
+    </div>
+  );
+};
 
 const ProductList = () => {
   const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(PRODUCT_PER_PAGE);
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const categoryFromUrl = queryParams.get("category") || "All";
+
+  // State for custom message box
+  const [showCustomMessage, setShowCustomMessage] = useState(false);
+  const [customMessageText, setCustomMessageText] = useState("");
+  const [customMessageType, setCustomMessageType] = useState("success");
+
+  // Helper function to show custom message
+  const showMessage = (msg, type = "success") => {
+    setCustomMessageText(msg);
+    setCustomMessageType(type);
+    setShowCustomMessage(true);
+  };
+
+  // Helper function to close custom message
+  const closeMessage = () => {
+    setShowCustomMessage(false);
+    setCustomMessageText("");
+  };
 
   useEffect(() => {
-    setSelectedCategory(categoryFromUrl);
-    setVisibleCount(PRODUCT_PER_PAGE);
-  }, [categoryFromUrl]);
-
-  useEffect(() => {
-    const getProducts = async () => {
-      setLoading(true);
-      setError(null);
+    const fetchProducts = async () => {
       try {
-        const response = await getAllProducts();
-        setProducts(response);
+        const data = await getAllProducts();
+        setProducts(data);
       } catch (err) {
-        console.error("Error loading products:", err);
-        setError("Failed to load products. Please try again later.");
+        console.error("Error fetching products:", err);
+        setError("Məhsullar yüklənərkən xəta baş verdi. Zəhmət olmasa, daha sonra yenidən cəhd edin.");
       } finally {
         setLoading(false);
       }
     };
-    getProducts();
+
+    fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    const inCategory = selectedCategory === "All" || product.category === selectedCategory;
-    const price = parseFloat(product.price);
-    const min = parseFloat(minPrice);
-    const max = parseFloat(maxPrice);
-    const inMinPrice = isNaN(min) || price >= min;
-    const inMaxPrice = isNaN(max) || price <= max;
-    return inCategory && inMinPrice && inMaxPrice;
-  });
-
-  const productsToDisplay = filteredProducts.slice(0, visibleCount);
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => prev + PRODUCT_PER_PAGE);
-  };
-
-  const handleAddToCart = (product, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    dispatch(addToCart(product));
-    message.success(`${product.name} added to cart!`);
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({ ...product, quantity: 1 })); // Add 1 quantity by default
+    showMessage(`${product.name} səbətə əlavə edildi!`, "success");
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(PRODUCT_PER_PAGE)].map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden p-4">
-              <Skeleton.Image style={{ width: "100%", height: "192px" }} />
-              <Skeleton active paragraph={{ rows: 2 }} title={false} />
-            </div>
-          ))}
-        </div>
+      <div className="container mx-auto p-8 animate-pulse">
+        <Skeleton active paragraph={{ rows: 10 }} />
+        <Skeleton active paragraph={{ rows: 5 }} className="mt-8" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-8 text-red-600 bg-red-100 border border-red-400 rounded-lg mx-auto max-w-md">
-        <p className="text-lg font-semibold">{error}</p>
-        <p className="text-sm mt-2">Please refresh the page or try again later.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-red-600 text-2xl font-semibold p-8 bg-white rounded-lg shadow-lg animate-fade-in">
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-900">Our Products</h2>
-        <div className="flex flex-wrap gap-3 justify-center mb-10 p-4 bg-white rounded-xl shadow-lg">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 rounded-full border-2 transition-all duration-300 ${
-                selectedCategory === category
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-800 border-gray-300 hover:bg-blue-50 hover:border-blue-200"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-4 justify-center items-center mb-10 p-4 bg-white rounded-xl shadow-lg">
-          <input
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            placeholder="Min Price ($)"
-            className="border-2 border-gray-300 p-3 rounded-lg w-36 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <span className="text-gray-600 text-lg font-semibold">-</span>
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            placeholder="Max Price ($)"
-            className="border-2 border-gray-300 p-3 rounded-lg w-36 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <button
-            onClick={() => {
-              setMinPrice("");
-              setMaxPrice("");
-            }}
-            className="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold transition-colors duration-200"
-          >
-            Clear Filters
-          </button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productsToDisplay.length > 0 ? (
-            productsToDisplay.map((product) => (
-              <Link
-                to={`/product/${product.id || product._id}`}
-                key={product.id || product._id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105 flex flex-col"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-10">
+      {/* Custom Message Box */}
+      {showCustomMessage && (
+        <CustomMessage message={customMessageText} type={customMessageType} onClose={closeMessage} />
+      )}
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-10 text-center">
+          Our Products
+        </h2>
+
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600 mb-6">
+              Hal-hazırda heç bir məhsul mövcud deyil.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <div
+                key={product._id || product.id} // Use _id for MongoDB, id for SQLite/mock
+                className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col group border border-gray-200"
               >
-                <img
-                  src={product.imageUrl || "https://placehold.co/400x300?text=No+Image"} // product.imageUrl artıq tam Cloudinary URL-i olmalıdır
-                  alt={product.name}
-                  className="w-full h-48 object-cover object-center"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://placehold.co/400x300?text=No+Image";
-                  }}
-                />
+                <Link to={`/product/${product._id || product.id}`} className="block relative w-full h-56 overflow-hidden bg-gray-100">
+                  <img
+                    src={product.imageUrl || "https://placehold.co/600x450?text=No+Image"}
+                    alt={product.name}
+                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x450?text=Image+Error"; }}
+                  />
+                </Link>
                 <div className="p-5 flex-grow flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">{product.name}</h3>
-                    <p className="text-gray-700 text-lg font-semibold mb-3">
-                      ${product.price ? parseFloat(product.price).toFixed(2) : "0.00"}
-                    </p>
-                    <p className="text-gray-500 text-sm line-clamp-3">
-                      {product.description || "No description provided for this product."}
+                    <Link to={`/product/${product._id || product.id}`} className="block">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <p className="text-gray-600 text-sm line-clamp-3 mb-3">
+                      {product.description || "No description provided."}
                     </p>
                   </div>
-                  <button
-                    onClick={(e) => handleAddToCart(product, e)}
-                    className="mt-4 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
-                  >
-                    <img src={basketIcon} alt="Basket" className="w-5 h-5 mr-2 text-white" />
-                    Add to Cart
-                  </button>
+                  <div className="flex items-center justify-between mt-auto">
+                    <p className="text-indigo-600 text-3xl font-extrabold">
+                      ${parseFloat(product.price).toFixed(2)}
+                    </p>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="bg-indigo-500 text-white p-3 rounded-full shadow-md hover:bg-indigo-600 transition duration-300 transform hover:scale-110"
+                      aria-label={`Add ${product.name} to cart`}
+                    >
+                      <ShoppingCartOutlined className="text-xl" />
+                    </button>
+                  </div>
                 </div>
-              </Link>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-600 text-lg py-10">
-              No products match your current filters. Please adjust your selections.
-            </p>
-          )}
-        </div>
-        {visibleCount < filteredProducts.length && (
-          <div className="flex justify-center mt-10">
-            <button
-              onClick={handleLoadMore}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-lg"
-            >
-              Load More
-            </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

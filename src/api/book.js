@@ -9,30 +9,27 @@ import { instance } from "./index";
 export const searchBooks = async (query) => {
   try {
     // API son nöqtəsinə axtarış sorğusu göndərir
+    // Note: Your backend book routes didn't explicitly show a '/books/search' endpoint,
+    // but rather a regex search on the main /books route. If your backend
+    // `getSearchResults` for books is exposed at `/books/search`, this is fine.
+    // If not, you might need to adjust the backend route or this frontend call.
     const response = await instance.get(
       `/books/search?q=${encodeURIComponent(query)}`
     );
-
-    // Server boş massiv qaytarsa belə, bu xəta deyil, sadəcə nəticənin olmaması deməkdir.
-    // Buna görə də, !response.data yoxlaması burada lüzumsuzdu.
     return response.data;
   } catch (error) {
-    // Axios xətalarını daha detallı idarə etmək üçün:
     if (error.response) {
-      // Server cavab verib, lakin status kodu 2xx deyil (məsələn, 400, 404, 500)
-      console.error("Server cavab xətası:", error.response.data); // Debug üçün saxlaya bilərsiniz
-      console.error("Status kodu:", error.response.status); // Debug üçün saxlaya bilərsiniz
+      console.error("Server cavab xətası:", error.response.data);
+      console.error("Status kodu:", error.response.status);
       throw new Error(
         error.response.data?.message ||
         `Axtarış zamanı server xətası baş verdi: ${error.response.status}`
       );
     } else if (error.request) {
-      // İstək edilib, lakin cavab alınmayıb (məsələn, şəbəkə kəsildi, CORS problemi)
-      console.error("Şəbəkə xətası: Serverə cavab gəlmədi.", error.request); // Debug üçün saxlaya bilərsiniz
+      console.error("Şəbəkə xətası: Serverə cavab gəlmədi.", error.request);
       throw new Error("Serverə qoşulmaq mümkün olmadı. Şəbəkə xətası.");
     } else {
-      // İstəyin qurulmasında problem olub
-      console.error("Sorğu xətası:", error.message); // Debug üçün saxlaya bilərsiniz
+      console.error("Sorğu xətası:", error.message);
       throw new Error(`Axtarış sorğusunda xəta: ${error.message}`);
     }
   }

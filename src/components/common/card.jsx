@@ -1,30 +1,81 @@
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { removeFromCart, clearCart, addToCart, updateQuantity } from "../../store/reducer/cartSlice";
+
+// Reusable Custom Message Component (consider moving to a common folder like src/components/common)
+const CustomMessage = ({ message, type, onClose }) => {
+  const bgColor = {
+    success: "bg-green-500",
+    info: "bg-blue-500",
+    error: "bg-red-500",
+  }[type] || "bg-gray-700";
+  const textColor = "text-white";
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Message disappears after 3 seconds
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div
+      className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down ${bgColor} ${textColor}`}
+      role="alert"
+    >
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-4 text-white font-bold text-xl leading-none">&times;</button>
+    </div>
+  );
+};
 
 const Cart = () => {
   const dispatch = useDispatch();
 
   const cartItems = useSelector((state) => state.cart.cartItems || []);
 
+  // State for custom message box
+  const [showCustomMessage, setShowCustomMessage] = useState(false);
+  const [customMessageText, setCustomMessageText] = useState("");
+  const [customMessageType, setCustomMessageType] = useState("success");
+
+  // Helper function to show custom message
+  const showMessage = (msg, type = "success") => {
+    setCustomMessageText(msg);
+    setCustomMessageType(type);
+    setShowCustomMessage(true);
+  };
+
+  // Helper function to close custom message
+  const closeMessage = () => {
+    setShowCustomMessage(false);
+    setCustomMessageText("");
+  };
+
   const handleRemove = (id) => {
     dispatch(removeFromCart(id));
+    showMessage("Məhsul səbətdən silindi.", "info");
   };
 
   const handleClear = () => {
     dispatch(clearCart());
+    showMessage("Səbət təmizləndi.", "info");
   };
 
   const handleIncreaseQuantity = (item) => {
     dispatch(addToCart(item));
+    showMessage(`${item.name} səbətə əlavə edildi.`, "success");
   };
 
   const handleDecreaseQuantity = (item) => {
     const newQuantity = (Number(item.quantity) || 0) - 1;
     if (newQuantity > 0) {
       dispatch(updateQuantity({ id: item.id, quantity: newQuantity }));
+      showMessage(`${item.name} sayı azaldıldı.`, "info");
     } else {
       dispatch(removeFromCart(item.id));
+      showMessage(`${item.name} səbətdən silindi.`, "info");
     }
   };
 
@@ -40,6 +91,11 @@ const Cart = () => {
 
   return (
     <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 mb-8">
+      {/* Custom Message Box */}
+      {showCustomMessage && (
+        <CustomMessage message={customMessageText} type={customMessageType} onClose={closeMessage} />
+      )}
+
       <nav className="flex items-center text-sm text-gray-600 space-x-2 mb-4">
         <Link to="/" className="hover:underline">Home</Link>
         <span>›</span>

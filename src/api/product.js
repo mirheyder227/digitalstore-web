@@ -1,9 +1,6 @@
 // src/api/product.js
 import { instance } from "./index";
 
-/**
- * Bütün məhsulları çəkir.
- */
 export const getAllProducts = async () => {
   try {
     const response = await instance.get("/products");
@@ -22,9 +19,6 @@ export const getAllProducts = async () => {
   }
 };
 
-/**
- * Tək bir məhsulu ID-sinə görə çəkir.
- */
 export const getSingleProduct = async (productId) => {
   try {
     const response = await instance.get(`/products/${productId}`);
@@ -43,10 +37,6 @@ export const getSingleProduct = async (productId) => {
   }
 };
 
-/**
- * Yeni məhsul əlavə edir.
- * FormData obyektində şəkil adı `image` olmalıdır.
- */
 export const addProduct = async (productData) => {
   try {
     const response = await instance.post("/products", productData, {
@@ -58,10 +48,6 @@ export const addProduct = async (productData) => {
   }
 };
 
-/**
- * Mövcud məhsulu yeniləyir.
- * FormData obyektində şəkil adı `image` olmalıdır.
- */
 export const updateProduct = async (productId, productData) => {
   try {
     const response = await instance.put(`/products/${productId}`, productData, {
@@ -73,9 +59,6 @@ export const updateProduct = async (productId, productData) => {
   }
 };
 
-/**
- * Məhsulu silir.
- */
 export const deleteProduct = async (productId) => {
   try {
     const response = await instance.delete(`/products/${productId}`);
@@ -85,9 +68,6 @@ export const deleteProduct = async (productId) => {
   }
 };
 
-/**
- * Məhsulları axtarış sorğusuna əsasən çəkir.
- */
 export const searchProducts = async (query) => {
   try {
     const response = await instance.get(`/products/search?q=${encodeURIComponent(query)}`);

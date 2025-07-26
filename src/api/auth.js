@@ -1,4 +1,3 @@
-
 // src/api/auth.js
 import { instance } from "./index";
 
@@ -45,6 +44,8 @@ export const apiLogout = async () => {
     localStorage.removeItem("user");
     return { success: true, message: "Çıxış uğurla edildi." };
   } catch (error) {
+    // This catch block is less likely to be hit since it's just local storage operations.
+    // But it's good to have for completeness.
     throw error.message || "Çıxış zamanı xəta baş verdi.";
   }
 };

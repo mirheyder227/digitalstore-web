@@ -1,11 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getSingleProduct, getAllProducts } from "../../api/product";
-import { Skeleton, message, Tooltip, Carousel } from "antd";
+import { Skeleton, Tooltip, Carousel } from "antd";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../store/reducer/cartSlice";
-import Card from "../../components/common/aboutUs";
+import Card from "../../components/common/aboutUs"; // Assuming this is a valid import
 import { HeartOutlined, ShoppingCartOutlined, ShareAltOutlined, StarFilled, StarOutlined } from "@ant-design/icons";
+
+// Reusable Custom Message Component (consider moving to a common folder like src/components/common)
+const CustomMessage = ({ message, type, onClose }) => {
+  const bgColor = {
+    success: "bg-green-500",
+    info: "bg-blue-500",
+    error: "bg-red-500",
+  }[type] || "bg-gray-700";
+  const textColor = "text-white";
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Message disappears after 3 seconds
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div
+      className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down ${bgColor} ${textColor}`}
+      role="alert"
+    >
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-4 text-white font-bold text-xl leading-none">&times;</button>
+    </div>
+  );
+};
 
 const StarRating = ({ rating, setRating, editable = false }) => {
   const stars = [...Array(5)].map((_, i) => {
@@ -41,6 +68,23 @@ const ProductDetails = () => {
   const [newReviewRating, setNewReviewRating] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
 
+  // State for custom message box
+  const [showCustomMessage, setShowCustomMessage] = useState(false);
+  const [customMessageText, setCustomMessageText] = useState("");
+  const [customMessageType, setCustomMessageType] = useState("success");
+
+  // Custom message display function
+  const showMessage = (msg, type = "success") => {
+    setCustomMessageText(msg);
+    setCustomMessageType(type);
+    setShowCustomMessage(true);
+  };
+
+  const closeMessage = () => {
+    setShowCustomMessage(false);
+    setCustomMessageText("");
+  };
+
   useEffect(() => {
     const fetchProductAndRelated = async () => {
       setLoading(true);
@@ -51,7 +95,6 @@ const ProductDetails = () => {
           setError("Product not found.");
         } else {
           setProduct(productData);
-          // productData.imageUrl artıq tam Cloudinary URL-i olmalıdır
           setMainImage(productData.imageUrl || "https://via.placeholder.com/600x450?text=No+Image+Available");
           setReviews([
             { id: 1, reviewerName: "Ali Mammadov", rating: 5, comment: "Absolutely loved this product! Highly recommend it to everyone.", date: "July 1, 2025" },
@@ -75,7 +118,7 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     if (product) {
       dispatch(addToCart({ ...product, quantity }));
-      message.success(`${quantity} x ${product.name} added to cart!`);
+      showMessage(`${quantity} x ${product.name} added to cart!`, "success");
     }
   };
 
@@ -88,7 +131,7 @@ const ProductDetails = () => {
   };
 
   const handleAddToWishlist = () => {
-    message.info(`${product.name} added to wishlist!`);
+    showMessage(`${product.name} added to wishlist!`, "info");
   };
 
   const handleShareProduct = () => {
@@ -97,21 +140,21 @@ const ProductDetails = () => {
         title: product.name,
         text: product.description ? product.description.substring(0, 100) + "..." : "Check out this product!",
         url: window.location.href
-      }).then(() => message.success("Product link successfully shared!")).catch(error => message.error("Share error: " + error.message));
+      }).then(() => showMessage("Product link successfully shared!", "success")).catch(error => showMessage("Share error: " + error.message, "error"));
     } else {
       navigator.clipboard.writeText(window.location.href);
-      message.success("Product link copied to clipboard!");
+      showMessage("Product link copied to clipboard!", "success");
     }
   };
 
   const handleSubmitReview = (e) => {
     e.preventDefault();
     if (!newReviewText.trim()) {
-      message.error("Please write your review.");
+      showMessage("Please write your review.", "error");
       return;
     }
     if (newReviewRating === 0) {
-      message.error("Please give a rating.");
+      showMessage("Please give a rating.", "error");
       return;
     }
     const newReview = {
@@ -124,7 +167,7 @@ const ProductDetails = () => {
     setReviews([...reviews, newReview]);
     setNewReviewText("");
     setNewReviewRating(0);
-    message.success("Your review was successfully submitted!");
+    showMessage("Your review was successfully submitted!", "success");
   };
 
   const averageRating = reviews.length > 0 ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length).toFixed(1) : "0.0";
@@ -149,11 +192,15 @@ const ProductDetails = () => {
     );
   }
 
-  // product.images artıq tam Cloudinary URL-ləri ehtiva etməlidir
   const productImages = product.images && product.images.length > 0 ? product.images : [mainImage];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-10">
+      {/* Custom Message Box */}
+      {showCustomMessage && (
+        <CustomMessage message={customMessageText} type={customMessageType} onClose={closeMessage} />
+      )}
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden md:flex md:items-center p-8 lg:p-12 mb-12">
           <div className="md:w-1/2 lg:w-2/5 flex justify-center items-center p-4">
@@ -302,7 +349,7 @@ const ProductDetails = () => {
               >
                 <div className="relative w-full h-48 overflow-hidden bg-gray-100">
                   <img
-                    src={p.imageUrl || "https://placehold.co/400x300?text=No+Image"} // product.imageUrl artıq tam Cloudinary URL-i olmalıdır
+                    src={p.imageUrl || "https://placehold.co/400x300?text=No+Image"}
                     alt={p.name}
                     className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x300?text=No+Image"; }}
