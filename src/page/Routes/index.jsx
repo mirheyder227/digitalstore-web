@@ -39,8 +39,8 @@ const MainRoutes = () => {
       </Route>
 
       <Route element={<AdminProtectedRoute />}>
-        <Route path={roots.Admin} element={<Admin />} />
-      </Route>
+    <Route path={roots.Admin} element={<Admin />} /> {/* roots.Admin adətən '/admin' dir */}
+</Route>
 
       <Route path="*" element={<Navigate to={roots.Error} replace />} />
       <Route path={roots.Error} element={<Error />} />

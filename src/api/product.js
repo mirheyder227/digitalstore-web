@@ -37,10 +37,13 @@ export const getSingleProduct = async (productId) => {
   }
 };
 
-export const addProduct = async (productData) => {
+// Update these functions in product.js
+export const addProduct = async (formData) => {
   try {
-    const response = await instance.post("/products", productData, {
-      headers: { 'Content-Type': 'multipart/form-data' } // optional, axios özü əlavə edir
+    const response = await instance.post("/products", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data;
   } catch (error) {
@@ -48,10 +51,12 @@ export const addProduct = async (productData) => {
   }
 };
 
-export const updateProduct = async (productId, productData) => {
+export const updateProduct = async (productId, formData) => {
   try {
-    const response = await instance.put(`/products/${productId}`, productData, {
-      headers: { 'Content-Type': 'multipart/form-data' } // optional
+    const response = await instance.put(`/products/${productId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data;
   } catch (error) {
@@ -67,7 +72,6 @@ export const deleteProduct = async (productId) => {
     throw error.response?.data?.message || error.message;
   }
 };
-
 export const searchProducts = async (query) => {
   try {
     const response = await instance.get(`/products/search?q=${encodeURIComponent(query)}`);

@@ -1,3 +1,4 @@
+// src/components/admin/forms/AddProductForm.jsx
 import React, { useState } from 'react';
 import { addProduct } from '../../../api/product';
 import { message } from 'antd';
@@ -20,24 +21,26 @@ const AddProductForm = ({ onAddSuccess }) => {
     formData.append('price', price);
     formData.append('category', category);
     if (image) {
-      formData.append('image', image); // <== burada da 'image' adını istifadə et, backend ilə tam uyğun olsun
+      // Backend Multer 'productImage' gözləyirsə, burada da 'productImage' olmalıdır
+      formData.append('productImage', image); 
     }
 
     try {
       await addProduct(formData);
       message.success('Məhsul uğurla əlavə edildi!');
 
+      // Formu sıfırla
       setName('');
       setDescription('');
       setPrice('');
       setCategory('');
       setImage(null);
-      e.target.reset();
+      e.target.reset(); // Fayl inputunu da sıfırlamaq üçün
 
       if (onAddSuccess) onAddSuccess();
     } catch (err) {
       console.error('Məhsul əlavə edilərkən xəta:', err);
-      message.error(err.message || 'Məhsul əlavə edilərkən xəta baş verdi.');
+      message.error(err.response?.data?.message || 'Məhsul əlavə edilərkən xəta baş verdi.');
     } finally {
       setLoading(false);
     }
@@ -110,7 +113,7 @@ const AddProductForm = ({ onAddSuccess }) => {
           <input
             id="image"
             type="file"
-            name="image"  // Multer backend-in gözlədiyi adla eyni olmalıdır
+            name="productImage" // Multer backend-in gözlədiyi adla eyni olmalıdır
             accept="image/*"
             onChange={e => setImage(e.target.files[0])}
             className="shadow border rounded w-full py-2 px-3 text-gray-700"
